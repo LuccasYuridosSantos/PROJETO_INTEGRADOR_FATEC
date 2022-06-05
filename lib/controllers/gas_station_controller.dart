@@ -1,8 +1,9 @@
 // ignore_for_file: avoid_function_literals_in_foreach_calls, prefer_collection_literals
+
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:projeto_integrador_fatec/pages/gas_station_page.dart';
+import 'package:projeto_integrador_fatec/pages/home_page.dart';
 import 'package:projeto_integrador_fatec/repositories/gas_station_repository.dart';
 
 import '../widgets/gas_station_details.dart';
@@ -14,10 +15,6 @@ class GasStationController extends ChangeNotifier {
   Set<Marker> markers = Set<Marker>();
   late GoogleMapController _mapsController;
 
-  // GasStationController() {
-  //   getPosition();
-  // }
-
   get mapsController => _mapsController;
 
   onMapCreated(GoogleMapController gmc) async {
@@ -26,27 +23,29 @@ class GasStationController extends ChangeNotifier {
     loadGasStation();
   }
 
-  loadGasStation() {
+  loadGasStation() async {
     final gasStation = GasStationRepository().gasStation;
     gasStation.forEach((element) async {
-      markers.add(
-        Marker(
-          markerId: MarkerId(element.name),
-          position: LatLng(element.latitude, element.longitude),
-          icon: await BitmapDescriptor.fromAssetImage(
-            const ImageConfiguration(
-              size: Size(120.0, 120.0),
-            ),
-            'images/fuel.png',
+      Marker marker = Marker(
+        markerId: MarkerId(element.name),
+        position: LatLng(element.latitude, element.longitude),
+        icon: await BitmapDescriptor.fromAssetImage(
+          const ImageConfiguration(
+            size: Size(120.0, 120.0),
           ),
-          onTap: () => {
-            showModalBottomSheet(
-              context: appKey.currentState!.context,
-              builder: (context)=> GasStationDetails(gasStation: element),
-            )
-          },
+          'images/fuel.png',
         ),
+        onTap: () => {
+          showModalBottomSheet(
+            context: appKey.currentState!.context,
+            builder: (context) => GasStationDetails(
+              gasStation: element,
+              latLng: LatLng(lat, long),
+            ),
+          ),
+        },
       );
+      markers.add(marker);
     });
     notifyListeners();
   }
